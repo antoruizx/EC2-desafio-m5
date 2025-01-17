@@ -20,12 +20,22 @@ jobs:
 
     - name: Copy files to EC2
       run: |
-        scp -i ~/.ssh/id_rsa -r ./ myuser@your-ec2-ip:/path/to/deploy/
+        scp -i ~/.ssh/id_rsa -r ./ ubuntu@3.87.98.197:/home/ubuntu/EC2-desafio-m5/
 
     - name: SSH into EC2 and deploy
       run: |
-        ssh -o StrictHostKeyChecking=no myuser@your-ec2-ip << 'EOF'
-          cd /path/to/deploy/
+        ssh -o StrictHostKeyChecking=no ubuntu@3.87.98.197 << 'EOF'
+          cd /home/ubuntu/EC2-desafio-m5/
+          
           npm install
-          pm2 start app.js --name my-app
+          
+          pm2 start index.js --name ec2-desafio-m5
+
+          sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 3000
+
+          sudo ufw allow 80/tcp
+          sudo ufw allow 443/tcp
+          sudo ufw reload
+
+          pm2 restart my-app
         EOF
