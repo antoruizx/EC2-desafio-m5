@@ -16,14 +16,14 @@ jobs:
     - name: Set up SSH key
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Manteniendo el nombre del secreto sin cambios
 
     - name: Set up SSH private key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa  # Manteniendo el nombre del archivo de clave como 'id_rsa'
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 3.87.98.197 >> ~/.ssh/known_hosts
+        ssh-keyscan -H 3.87.98.197 >> ~/.ssh/known_hosts  # Asegúrate de que el host esté en known_hosts
 
     - name: Copy files to EC2
       run: |
@@ -31,7 +31,7 @@ jobs:
 
     - name: SSH into EC2 and deploy
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@3.87.98.197 << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@3.87.98.197 << 'EOF'
           cd /home/ubuntu/EC2-desafio-m5/
           npm install
           pm2 start index.js --name my-app
