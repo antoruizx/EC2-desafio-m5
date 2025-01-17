@@ -18,6 +18,13 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+    - name: Set up SSH private key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H 3.87.98.197 >> ~/.ssh/known_hosts
+
     - name: Copy files to EC2
       run: |
         scp -i ~/.ssh/id_rsa -r ./ ubuntu@3.87.98.197:/home/ubuntu/EC2-desafio-m5/
@@ -26,13 +33,10 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@3.87.98.197 << 'EOF'
           cd /home/ubuntu/EC2-desafio-m5/
-          
           npm install
-          
-          pm2 start index.js --name ec2-desafio-m5
+          pm2 start index.js --name my-app
 
           sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 3000
-
           sudo ufw allow 80/tcp
           sudo ufw allow 443/tcp
           sudo ufw reload
