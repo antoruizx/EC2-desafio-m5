@@ -13,12 +13,17 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v2
 
+    - name: Set up SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Manteniendo el nombre del secreto sin cambios
+
     - name: Set up SSH private key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa  
-        chmod 600 ~/.ssh/id_rsa  # Asegurarse de que tenga permisos adecuados
-        ssh-keyscan -H 3.87.98.197 >> ~/.ssh/known_hosts 
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa 
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H 3.87.98.197 >> ~/.ssh/known_hosts
 
     - name: Copy files to EC2
       run: |
